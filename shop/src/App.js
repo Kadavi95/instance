@@ -39,14 +39,35 @@ export default class App extends Component {
     })
   }
 
+  createNewToDo = () => {
+    if(!this.state.toDoItems.find(item => item.action === this.state.newItemText)) {
+      this.setState({
+        toDoItems: [...this.state.toDoItems, {
+          action: this.state.newItemText, done: false 
+        }],
+        newItemText: ""
+      })
+    }
+  }
   render (){
     return (
       <div className="App">
              <h4 className="bg-primary text-white text-center p-2">
                Lista zadań użytkownika {this.state.name}
+               (Liczba zdań: {this.state.toDoItems.filter(t => !t.done).length})
              </h4>
-             <button className="btn btn-primary m-2" onClick = {this.changeName}>
-               Zmień
+             <div className="container-fluid">
+               <div className="my-1">
+                 <input className="form-control"
+                      value={this.state.newItemText}
+                      onChange={this.updateNewTextValue}
+                 />
+
+               </div>
+
+             </div>
+             <button className="btn btn-primary mt-1" onClick = {this.createNewToDo}>
+               Dodaj
              </button>
       </div>
     )
