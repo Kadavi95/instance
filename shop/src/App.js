@@ -49,6 +49,20 @@ export default class App extends Component {
       })
     }
   }
+
+  toggleToDo = (todo) => this.setState({
+    toDoItems:
+      this.state.toDoItems.map(item => item.action === todo.action
+        ? {...item.action, done: !item.done} : item)
+  })
+  todoTableRows = () => this.state.toDoItems.map(item => 
+    <tr key={item.action} >
+      <td>{item.action}</td>
+      <td>
+        <input type="checkbox" checked={item.done} onChange={() => this.toggleToDo(item)} />
+      </td>
+    </tr>
+    )
   render (){
     return (
       <div className="App">
@@ -69,6 +83,12 @@ export default class App extends Component {
              <button className="btn btn-primary mt-1" onClick = {this.createNewToDo}>
                Dodaj
              </button>
+             <table className="table table-striped table-bordered">
+               <thead>
+                  <tr><th>Opis</th><th>Wykonane</th></tr>
+               </thead>
+               <tbody>{this.todoTableRows()}</tbody>
+             </table>
       </div>
     )
   }
