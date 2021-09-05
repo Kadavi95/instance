@@ -1,18 +1,9 @@
 import React, {Component} from 'react';
-// import logo from './logo.svg';
-// import './App.css';
+import { ToDoBanner } from './ToDoBanner';
+import { TodoCreator } from './TodoCreator';
+import { TodoRow } from './TodoRow';
+import { VisibilityControl } from './visibilityControl';
 
-// function App() {
-//   return (
-//     <div className="App">
-//       <h4 className="bg-primary text-white text-center p-2">
-//         Lista zadań
-//       </h4>
-//     </div>
-//   );
-// }
-
-// export default App;
 
 export default class App extends Component {
 
@@ -25,7 +16,7 @@ export default class App extends Component {
       {action: "take shoes", done: false},
       {action: "buy tickets", done: true},
       {action: "call mom", done: false}],
-      newItemText: "",
+      showCompleted: true
     }
   }
   changeName = () => {
@@ -39,13 +30,12 @@ export default class App extends Component {
     })
   }
 
-  createNewToDo = () => {
-    if(!this.state.toDoItems.find(item => item.action === this.state.newItemText)) {
+  createNewToDo = (task) => {
+    if(!this.state.toDoItems.find(item => item.action === task)) {
       this.setState({
         toDoItems: [...this.state.toDoItems, {
-          action: this.state.newItemText, done: false 
+          action: task, done: false 
         }],
-        newItemText: ""
       })
     }
   }
@@ -55,29 +45,31 @@ export default class App extends Component {
       this.state.toDoItems.map(item => item.action === todo.action
         ? {...item.action, done: !item.done} : item)
   })
-  todoTableRows = () => this.state.toDoItems.map(item => 
-    <tr key={item.action} >
-      <td>{item.action}</td>
-      <td>
-        <input type="checkbox" checked={item.done} onChange={() => this.toggleToDo(item)} />
-      </td>
-    </tr>
+  todoTableRows = (doneValue) => this.state.toDoItems.filter(item => item.done === doneValue).map(item => 
+      <TodoRow key={item.action} item={item} callback={this.toggleToDo}></TodoRow>
     )
+
+  componentDidMount = () => {
+    let data = localStorage.getItem("todos");
+    this.setState(data != null ? JSON.parse(data) : {
+      name: "Adam",
+      toDoItems: [
+        {action: "buy flowers", done: false},
+        {action: "take shoes", done: false},
+        {action: "buy tickets", done: true},
+        {action: "call mom", done: false}
+      ],
+      showCompleted: true
+    })
+  }
   render (){
     return (
       <div className="App">
-             <h4 className="bg-primary text-white text-center p-2">
-               Lista zadań użytkownika {this.state.name}
-               (Liczba zdań: {this.state.toDoItems.filter(t => !t.done).length})
-             </h4>
+           <ToDoBanner name={this.state.name} tasks = {this.state.toDoItems}></ToDoBanner>
              <div className="container-fluid">
-               <div className="my-1">
-                 <input className="form-control"
-                      value={this.state.newItemText}
-                      onChange={this.updateNewTextValue}
-                 />
+                <TodoCreator callback={this.createNewToDo}>
 
-               </div>
+                </TodoCreator>
 
              </div>
              <button className="btn btn-primary mt-1" onClick = {this.createNewToDo}>
@@ -87,8 +79,25 @@ export default class App extends Component {
                <thead>
                   <tr><th>Opis</th><th>Wykonane</th></tr>
                </thead>
-               <tbody>{this.todoTableRows()}</tbody>
+               <tbody>{this.todoTableRows(false)}</tbody>
              </table>
+             <div className="bg-secondary text-white text-center p-2">
+               <VisibilityControl description="zadanie wykonane" isChecked={this.state.showCompleted} callback={(checked) => this.setState({showCompleted: checked})}>
+
+               </VisibilityControl>
+             </div>
+
+             {this.state.showCompleted && 
+              <table className="table table-striped table-bordered">
+                <thead>
+                  <tr><th>Opis</th><th>Wykonane</th></tr>
+                </thead>
+                <tbody>
+                  {this.todoTableRows(true)}
+                </tbody>
+
+              </table>
+             }
       </div>
     )
   }
